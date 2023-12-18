@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOCTORS List</title>
+  <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            background: url('assets/img/hero-bg.jpg') center center fixed;
+            background-size: cover;
+        }
+
+        #sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #87CEEB; /* Sky Blue */
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+
+        #main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        #menu a {
+            text-decoration: none;
+            color: #fff;
+            padding: 10px;
+            margin: 5px 0;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        #menu a:hover {
+            background-color: #4682B4; /* Steel Blue on hover */
+        }
+
+        #content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+
+
+        #logout-btn {
+            /*align-self: flex-end;
+            margin-bottom: 20px;
+            padding: 10px;
+            margin-left: 25px;
+
+    padding: 8px 25px;
+    white-space: nowrap;
+    transition: 0.3s;
+
+            */
+            background: #1977cc;
+            color: #fff;
+            border-radius: 50px;
+            cursor: pointer;
+            padding: 20px;
+            width: 14%;
+            height: 80%;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            max-height: 5px;
+            font-size: 14px;
+            display: inline-block
+
+        }
+
+        #doctors-content table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 20px;
+          overflow-x: auto;
+}
+
+
+
+th, td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 2px solid #020000;
+  border-left: 2px solid #020000;
+  border-right: 2px solid #020000;
+  border-top: 2px solid #020000;
+}
+
+th {
+  background-color: #4682B4; /* Steel Blue for header */
+  color: #fff;
+}
+
+tbody tr:hover {
+  background-color: #f5f5f5; /* Light gray on hover */
+}
+
+
+#doctors-content button {
+    padding: 8px 12px;
+    background-color: #4682B4; /* Steel Blue */
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#doctors-content button:hover {
+    background-color: #357CA5; /* Darker Steel Blue on hover */
+}
+
+
+
+#search-section {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+label {
+  margin-right: 10px;
+}
+
+input[type="text"] {
+  padding: 8px;
+}
+
+button {
+  padding: 8px 15px;
+  cursor: pointer;
+  background-color: #87CEEB; /* Sky Blue */
+  border: none;
+  color: #fff;
+}
+
+button:hover {
+  background-color: #4682B4; /* Steel Blue on hover */
+}
+
+
+    </style>
+</head>
+<body>
+<div id="sidebar">
+  <div id="menu">
+    <a href="http://localhost:8080/website/AdminHome.html" onclick="showContent('patients')">Patients</a>
+    <a href="http://localhost:8080/website/AdminHome.html" onclick="showContent('doctors')">Doctors</a>
+    <a href="http://localhost:8080/website/AdminHome.html" onclick="showContent('appointments')">Appointments</a>
+    <a href="http://localhost:8080/website/AdminHome.html" onclick="showContent('prescriptions')">Prescriptions</a>
+    <a href="http://localhost:8080/website/AdminHome.html" onclick="showContent('department')">Department</a>
+
+  </div>
+  <button id="logout-btn" onclick="logout()">Log Out</button>
+</div>
+
+<div id="main-content">
+  <button id="logout-btn" onclick="logout()">Log Out</button>
+    <div class="button-container">
+
+
+  <div id="doctors-content">
+    <h2>DOCTORS List</h2>
+
+
+      <!-- Search by Name -->
+      <label for="searchByName">Search by Name:</label>
+      <input type="text" id="searchByName" placeholder="Enter doctor's name">
+      <button onclick="searchDoctorByName()">Search</button>
+
+      <!-- Search by ID -->
+      <label for="searchById">Search by ID:</label>
+      <input type="text" id="searchById" placeholder="Enter doctor's ID">
+      <button onclick="searchDoctorById()">Search</button>
+
+      <table border="1">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Email</th>
+          <th>Licence</th>
+          <th>Specialization</th>
+          <th>Gender</th>
+          <th>Phone Number</th>
+          <th>Department</th>
+          <th>Action</th>
+        </tr>
+        </thead>
+        <tbody id="doctor-table-body">
+        <!-- Table rows will be populated dynamically -->
+        </tbody>
+      </table>
+    <div id="pagination">
+      <button onclick="changePage('prev')">Previous</button>
+      <span id="page-number">Page 1</span>
+      <button onclick="changePage('next')">Next</button>
+    </div>
+    </div>
+  </div>
+
+  <script>
+
+  function logout() {
+        // Add logic for logout here
+        alert('Logging out...');
+        // Redirect to index.html or your login page
+        window.location.href = 'http://localhost:8080/website/index.html';
+    }
+
+
+   // Function to populate the table with doctor data from the backend
+function populateDoctorTable(doctorsData) {
+  var tableBody = document.getElementById('doctor-table-body');
+
+  // Clear existing table rows
+  tableBody.innerHTML = '';
+
+  // Check if doctorsData is an array
+  if (Array.isArray(doctorsData)) {
+    // Iterate over the fetched data and append rows to the table
+    doctorsData.forEach(function (doctor) {
+      var row = tableBody.insertRow();
+      // Adjust the properties based on your actual data structure
+      var properties = ['id', 'firstName', 'lastName', 'email', 'licence', 'specialization', 'gender', 'phoneNumber', 'department'];
+      properties.forEach(function (property) {
+        var cell = row.insertCell();
+        cell.appendChild(document.createTextNode(doctor[property]));
+      });
+
+      // Add "Actions" column with "Update" and "Delete" buttons
+      var actionsCell = row.insertCell();
+
+      // Example usage in your existing code
+var updateButton = document.createElement('button');
+updateButton.innerText = 'Update';
+updateButton.style.backgroundColor = '#4CAF50'; // Green color
+updateButton.addEventListener('click', function () {
+  // Pass the row data to the redirectToUpdateDoctorPage function
+  redirectToUpdateDoctorPage(doctor);
+});
+actionsCell.appendChild(updateButton);
+
+      var deleteButton = document.createElement('button');
+      deleteButton.innerText = 'Delete';
+      deleteButton.style.backgroundColor = '#FF0000'; // Red color
+      deleteButton.addEventListener('click', function () {
+        // Call the deleteDoctor function passing the doctor ID
+        deleteDoctor(doctor.id);
+      });
+      actionsCell.appendChild(deleteButton);
+    });
+  } else {
+    console.error('Invalid data format:', doctorsData);
+  }
+}
+
+// Function to fetch doctor data from the backend
+function getAllDoctors() {
+  // Make a GET request to fetch the doctor data from the backend
+  fetch('http://localhost:8080/doctors/listDoctors', {
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/json', // Set Content-Type to application/json
+      },
+  })
+  .then(response => response.json())
+  .then(doctorsData => {
+      // Call the function to populate the table with the received data
+      populateDoctorTable(doctorsData);
+  })
+  .catch(error => {
+      console.error('Error fetching data:', error);
+      alert('Error fetching doctor data. Please try again.');
+  });
+}
+
+
+// Call the function to fetch data and populate the table when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+  getAllDoctors();
+});
+
+// Function to delete a doctor by ID
+function deleteDoctor(doctorId) {
+  // Show a confirmation modal
+  var confirmDelete = confirm(`Are you sure you want to delete the doctor with ID: ${doctorId}?`);
+
+  if (confirmDelete) {
+    console.log('Deleting doctor with ID:', doctorId);
+    // Make a DELETE request to your backend endpoint
+    fetch(`http://localhost:8080/doctors/deleteDoctors/${doctorId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (response.status === 204) {
+            // If the doctor is deleted successfully, redirect to the specified URL
+            window.location.href = 'http://localhost:8080/website/Doctors/listdoctor.html';
+        } else {
+            alert('Error deleting doctor. Please try again.');
+            return Promise.reject('Error deleting doctor');
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting doctor:', error);
+        alert('Error deleting doctor. Please try again.');
+    });
+  }
+}
+
+
+// Function to redirect to updatedoctor.html with doctor data as query parameters
+function redirectToUpdateDoctorPage(doctor) {
+  // Construct the query parameters string
+  var queryParams = '?id=' + encodeURIComponent(doctor.id) +
+      '&firstName=' + encodeURIComponent(doctor.firstName) +
+      '&lastName=' + encodeURIComponent(doctor.lastName) +
+      '&email=' + encodeURIComponent(doctor.email) +
+      '&licence=' + encodeURIComponent(doctor.licence) +
+      '&specialization=' + encodeURIComponent(doctor.specialization) +
+      '&gender=' + encodeURIComponent(doctor.gender) +
+      '&phoneNumber=' + encodeURIComponent(doctor.phoneNumber) +
+      '&department=' + encodeURIComponent(doctor.department);
+
+  // Redirect to updatedoctor.html with query parameters
+  window.location.href = 'http://localhost:8080/website/Doctors/updatedoctor.html' + queryParams;
+}
+
+// Example usage in your existing code
+var updateButton = document.createElement('button');
+updateButton.innerText = 'Update';
+updateButton.style.backgroundColor = '#4CAF50'; // Green color
+updateButton.addEventListener('click', function () {
+  // Pass the row data to the redirectToUpdateDoctorPage function
+  redirectToUpdateDoctorPage(doctor);
+});
+actionsCell.appendChild(updateButton);
+
+
+
+    </script>
+</div>
+</body>
+</html>

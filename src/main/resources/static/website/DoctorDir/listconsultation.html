@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultations List</title>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            background-size: cover;
+        }
+
+        #sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #87CEEB; /* Sky Blue */
+            color: #fff;
+            display: fixed;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+
+        #main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        #menu a {
+            text-decoration: none;
+            color: #fff;
+            padding: 10px;
+            margin: 5px 0;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        #menu a:hover {
+            background-color: #4682B4; /* Steel Blue on hover */
+        }
+
+        #content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+
+
+        #logout-btn {
+            /*align-self: flex-end;
+            margin-bottom: 20px;
+            padding: 10px;
+            margin-left: 25px;
+            padding: 8px 25px;
+            white-space: nowrap;
+            transition: 0.3s;
+
+            */
+            background: #1977cc;
+            color: #fff;
+            border-radius: 50px;
+            cursor: pointer;
+            padding: 20px;
+            width: 14%;
+            height: 80%;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            max-height: 5px;
+            font-size: 14px;
+            display: inline-block
+
+        }
+
+
+
+       table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        overflow-x: auto;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #4682B4; /* Steel Blue for header */
+        color: #fff;
+        padding: 10px;
+    }
+
+    tbody tr:hover {
+        background-color: #f5f5f5; /* Light gray on hover */
+    }
+
+    #search-section {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        display:flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    label {
+        margin-right: 10px;
+    }
+
+    input[type="text"] {
+        padding: 8px;
+    }
+
+    button {
+        padding: 8px 15px;
+        cursor: pointer;
+        background-color: #87CEEB; /* Sky Blue */
+        border: none;
+        color: #fff;
+    }
+
+    button:hover {
+        background-color: #4682B4; /* Steel Blue on hover */
+    }
+
+
+ .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .pagination button {
+    background-color: #87CEEB;
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    margin: 0 5px;
+    cursor: pointer;
+  }
+
+  .pagination button:hover {
+    background-color: #4682B4;
+  }
+
+
+    </style>
+</head>
+<body>
+<div id="sidebar">
+    <div id="menu">
+
+        <a href="http://localhost:8080/website/DoctorDir/DoctorHome.html" onclick="showContent('prescriptions')">Home</a>
+        <a href="#" onclick="showContent('patients')">Consultations</a>
+
+
+
+    </div>
+    <button id="logout-btn" onclick="logout()">Log Out</button>
+</div>
+
+
+
+
+<div id="main-content">
+    <div id="content">
+        <h2>Consultations List</h2>
+
+        <!-- Table for displaying patient information -->
+
+        <!-- Search section -->
+        <button onclick="generateReport()">Generate Report</button>
+        <div id="search-section">
+
+
+
+            <label for="searchByName">Search by Name:</label>
+            <input type="text" id="searchByName" placeholder="Enter name">
+            <button onclick="searchPatients('name')">Search</button>
+
+            <label for="searchById">Search by ID:</label>
+            <input type="text" id="searchById" placeholder="Enter ID">
+            <button onclick="searchPatients('id')">Search</button>
+            <!-- Add this element inside the #content div -->
+            <div id="search-message" style="color: red;"></div>
+
+        </div>
+
+        <table border="1">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Doctor ID</th>
+                <th>Doctor Name</th>
+                <th>Patient ID</th>
+                <th>Patient Name</th>
+                <th>Date</th>
+                <th>Consultation Details</th>
+
+            </tr>
+            </thead>
+            <tbody id="consultation-table-body">
+            <!-- Patient data will be dynamically added here -->
+            </tbody>
+
+
+        </table>
+
+        <!-- Add the following elements after the closing </tbody> tag -->
+        <div class="pagination" id="pagination">
+            <button onclick="prevPage()">Previous Page</button>
+            <span id="page-number">Page 1</span>
+            <button onclick="nextPage()">Next Page</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+<script>
+
+// Add this function to your existing JavaScript code
+function generateReport() {
+  var content = document.getElementById('main-content'); // You can adjust the ID if needed
+
+  // Use html2pdf library to generate PDF
+  html2pdf(content, {
+    margin: 5,
+    filename: 'report.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  });
+}
+
+
+// Function to populate the table with prescription data from the backend
+function populatePrescriptionTable() {
+  var tableBody = document.getElementById('consultation-table-body');
+
+  // Make a GET request to fetch the prescription data from the backend
+  fetch('http://localhost:8080/prescriptions/listPrescriptions', {
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/json', // Set Content-Type to application/json
+      },
+  })
+  .then(response => response.json())
+  .then(prescriptionsData => {
+      // Clear existing table rows
+      tableBody.innerHTML = '';
+
+      // Check if the data is an array
+      if (Array.isArray(prescriptionsData)) {
+          // Iterate over the fetched data and append rows to the table
+          prescriptionsData.forEach(function (prescription) {
+              var row = tableBody.insertRow();
+              // Adjust the properties based on your actual data structure
+              var properties = ['prescription_id', 'doctor_id', 'doctor_name', 'patient_id', 'patient_name', 'date', 'consultation_details'];
+              properties.forEach(function (property) {
+                  var cell = row.insertCell();
+                  // Use bracket notation to access properties with underscores
+                  cell.appendChild(document.createTextNode(prescription[property]));
+              });
+          });
+      } else {
+          console.error('Prescription data is not an array:', prescriptionsData);
+      }
+  })
+  .catch(error => console.error('Error fetching prescription data:', error));
+}
+
+// Call the function to populate the table when the page loads
+document.addEventListener('DOMContentLoaded', populatePrescriptionTable);
+
+ function logout() {
+        // Redirect to the logout URL
+        window.location.href = 'http://localhost:8080/website/index.html';
+    }
+
+
+</script>
+</body>
+</html>

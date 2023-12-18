@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('hero-bg.jpg'); /* Replace with your background image URL */
+            background-size: cover;
+            background-position: center;
+            color: #000000;
+        }
+
+        .dashboard {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .button {
+            margin: 10px;
+            padding: 50px; /* Adjust the padding for larger buttons */
+            width: 200px; /* Adjust the width for larger buttons */
+            font-size: 18px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 10px; /* Make buttons square with border-radius */
+            cursor: pointer;
+        }
+
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 15px;
+            width: auto;
+            font-size: 18px;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <h1>Welcome, Dr. Kwizera Africa</h1>
+    <button class="button" onclick="newConsultations()">New Consultations</button>
+    <button class="button" onclick="listAllConsultations()">List All Consultations</button>
+    <button class="button" onclick="listAllPatients()">List All Patients</button>
+    <button class="button logout-button" onclick="logout()">Logout</button>
+</div>
+
+<script>
+        function newConsultations() {
+            
+            window.location.href = 'http://localhost:8080/website/DoctorDir/createconsultation.html';
+        }
+
+        function listAllConsultations() {
+            window.location.href = 'http://localhost:8080/website/DoctorDir/listconsultation.html';
+        }
+
+        function listAllPatients() {
+            window.location.href = 'http://localhost:8080/website/DoctorDir/listpatientsdir.html';
+        }
+
+        function logout() {
+
+            window.location.href = 'http://localhost:8080/website/index.html';
+        }
+    </script>
+</body>
+</html>

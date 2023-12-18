@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System - Appointments</title>
+    <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      background-size: cover;
+    }
+
+    #sidebar {
+      width: 250px;
+      height: 500vh;
+      background-color: #87CEEB; /* Sky Blue */
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 20px;
+    }
+
+    #main-content {
+      flex: 1;
+      padding: 20px;
+    }
+
+    #menu a {
+      text-decoration: none;
+      color: #fff;
+      padding: 10px;
+      margin: 5px 0;
+      display: block;
+      transition: background-color 0.3s;
+    }
+
+    #menu a:hover {
+      background-color: #4682B4; /* Steel Blue on hover */
+    }
+
+    #content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #logout-btn {
+      background: #1977cc;
+      color: #fff;
+      border-radius: 50px;
+      cursor: pointer;
+      padding: 20px;
+      width: 14%;
+      height: 80%;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      max-height: 5px;
+      font-size: 14px;
+      display: inline-block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 2px solid #020000;
+      border-left: 2px solid #020000;
+      border-right: 2px solid #020000;
+      border-top: 2px solid #020000;
+    }
+
+    th {
+      background-color: #4682B4; /* Steel Blue for header */
+      color: #fff;
+    }
+
+    tbody tr:hover {
+      background-color: #f5f5f5; /* Light gray on hover */
+    }
+
+    #search-section {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    label {
+      margin-right: 10px;
+    }
+
+    input[type="text"] {
+      padding: 8px;
+    }
+
+    button {
+      padding: 8px 15px;
+      cursor: pointer;
+      background-color: #87CEEB; /* Sky Blue */
+      border: none;
+      color: #fff;
+    }
+
+    button:hover {
+      background-color: #4682B4; /* Steel Blue on hover */
+    }
+  </style>
+</head>
+<body>
+<div id="sidebar">
+    <div id="menu">
+        <a href="http://localhost:8080/website/AdminHome.html" onclick="showContent('patients')">Patients</a>
+        <a href="http://localhost:8080/website/AdminHome.html" onclick="showContent('doctors')">Doctors</a>
+        <a href="http://localhost:8080/website/AdminHome.html" onclick="showContent('appointments')">Appointments</a>
+        <a href="http://localhost:8080/website/AdminHome.html" onclick="showContent('prescriptions')">Prescriptions</a>
+        <a href="http://localhost:8080/website/AdminHome.html" onclick="showContent('department')">Department</a>
+    </div>
+    <button id="logout-btn" onclick="logout()">Log Out</button>
+</div>
+
+<div id="main-content">
+    <div id="content">
+        <!-- Content for Appointments -->
+        <div id="appointments-content">
+            <br>
+            <br>
+            <br>
+
+            <h2>Appointment List</h2>
+
+            <div id="search-section">
+                <label for="searchById">Search by Appointment ID:</label>
+                <input type="text" id="searchById" placeholder="Enter ID">
+                <button onclick="searchAppointments('id')">Search</button>
+
+                <!-- Search by Name -->
+                <label for="searchByName">Search by Patient Name:</label>
+                <input type="text" id="searchByName" placeholder="Enter Name">
+                <button onclick="searchAppointments('name')">Search</button>
+
+
+                <label for="searchByName">Search by Date:</label>
+                <input type="text" id="searchByDate" placeholder="Enter the date">
+                <button onclick="searchAppointments('date')">Search</button>
+
+                <label for="searchByName">Search by Department name :</label>
+                <input type="text" id="searchByDepartment" placeholder="Enter Department name">
+                <button onclick="searchAppointments('department')">Search</button>
+
+
+            </div>
+
+
+
+            <div id="search-message" style="color: red;"></div>
+
+            <button id="logout-btn" onclick="logout()">Log Out</button>
+            <div class="button-container">
+                <!-- Table for displaying appointment data -->
+                <table border="1" cellpadding="10">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Patient ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Phone Number</th>
+                        <th>Department</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Note</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="appointment-table-body">
+                    <!-- Data will be populated here dynamically -->
+                    </tbody>
+                </table>
+                <!-- Pagination controls -->
+                <div id="pagination">
+                    <button onclick="prevPage()">Previous</button>
+                    <span id="currentPage">1</span>
+                    <button onclick="nextPage()">Next</button>
+                </div>
+            </div>
+        </div>
+
+    <script>
+
+ function logout() {
+    // Display a confirmation dialog
+    var confirmLogout = confirm('Are you sure you want to log out?');
+
+    // If the user confirms, log out and redirect to index.html
+    if (confirmLogout) {
+      // Add any logout logic you may have here
+
+      // Redirect to index.html
+      window.location.href = 'http://localhost:8080/website/index.html';
+    }
+  }
+
+
+
+    // Pagination variables
+            var currentPage = 1;
+            var rowsPerPage = 10;
+
+            // Function to display the current page
+            function displayCurrentPage() {
+                var tableRows = document.getElementById('appointment-table-body').getElementsByTagName('tr');
+
+                for (var i = 0; i < tableRows.length; i++) {
+                    if (i >= (currentPage - 1) * rowsPerPage && i < currentPage * rowsPerPage) {
+                        tableRows[i].style.display = '';
+                    } else {
+                        tableRows[i].style.display = 'none';
+                    }
+                }
+
+                document.getElementById('currentPage').innerText = currentPage;
+            }
+
+            // Function to go to the next page
+            function nextPage() {
+                var tableRows = document.getElementById('appointment-table-body').getElementsByTagName('tr');
+                var totalPages = Math.ceil(tableRows.length / rowsPerPage);
+
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    displayCurrentPage();
+                }
+            }
+
+            // Function to go to the previous page
+            function prevPage() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayCurrentPage();
+                }
+            }
+
+
+
+
+  // Function to populate the table with appointment data from the database
+  function populateAppointmentTable() {
+    var tableBody = document.getElementById('appointment-table-body');
+
+    // Make a GET request to fetch the appointment data from the backend
+    fetch('/appointments/listAppointments', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json', // Set Content-Type to application/json
+      },
+    })
+      .then(response => response.json())
+      .then(appointmentsData => {
+        // Clear existing table rows
+        tableBody.innerHTML = '';
+
+        // Iterate over the fetched data and append rows to the table
+        appointmentsData.forEach(function (appointment) {
+          var row = tableBody.insertRow();
+          // Adjust the properties based on your actual data structure
+          var properties = ['id', 'patientid', 'firstname', 'lastname', 'email', 'phoneNumber', 'department', 'date', 'time', 'note'];
+          properties.forEach(function (property) {
+            var cell = row.insertCell();
+            cell.appendChild(document.createTextNode(appointment[property]));
+          });
+
+          // Add "Actions" column with "Update" and "Delete" buttons
+          var actionsCell = row.insertCell();
+          var updateButton = document.createElement('button');
+          updateButton.innerText = 'Update';
+          updateButton.style.backgroundColor = '#4CAF50'; // Green color
+          updateButton.addEventListener('click', function () {
+            // Add logic to handle the update button click
+            alert('Update button clicked for appointment ID: ' + appointment.id);
+          });
+          actionsCell.appendChild(updateButton);
+
+          var deleteButton = document.createElement('button');
+          deleteButton.innerText = 'Cancel';
+          deleteButton.style.backgroundColor = '#FF0000'; // Red color
+
+          deleteButton.addEventListener('click', function () {
+            // Call the deleteAppointment function passing the appointment ID
+            deleteAppointment(appointment.id);
+          });
+          actionsCell.appendChild(deleteButton);
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching appointment data:', error);
+        alert('Error fetching appointment data. Please try again.');
+      });
+  }
+
+  // Function to delete an appointment by ID
+  function deleteAppointment(appointmentId) {
+    // Show a confirmation modal
+    var confirmDelete = confirm(`Are you sure you want to delete the appointment with ID: ${appointmentId}?`);
+
+    if (confirmDelete) {
+      console.log('Deleting appointment with ID:', appointmentId);
+      // Make a DELETE request to your backend endpoint
+      fetch(`/appointments/deleteAppointments/${appointmentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => {
+          if (response.status === 204) {
+            // If the appointment is deleted successfully, refresh the table
+            populateAppointmentTable();
+          } else {
+            alert('Error deleting appointment. Please try again.');
+          }
+        })
+        .catch(error => {
+          console.error('Error deleting appointment:', error);
+          alert('Error deleting appointment. Please try again.');
+        });
+    }
+  }
+
+  // Function to search appointments by ID, patient name, department name, or date
+  function searchAppointments(type) {
+    var searchTerm;
+    if (type === 'id') {
+      searchTerm = document.getElementById('searchById').value.toLowerCase();
+    } else if (type === 'name') {
+      searchTerm = document.getElementById('searchByName').value.toLowerCase();
+    } else if (type === 'department') {
+      searchTerm = document.getElementById('searchByDepartment').value.toLowerCase();
+    } else if (type === 'date') {
+      searchTerm = document.getElementById('searchByDate').value;
+    }
+
+    var rows = document.getElementById('appointment-table-body').getElementsByTagName('tr');
+    var noAppointmentMessage = document.getElementById('search-message');
+    var appointmentFound = false;
+
+    for (var i = 0; i < rows.length; i++) {
+      var currentRow = rows[i];
+      var idCell = currentRow.getElementsByTagName('td')[0]; // ID column
+      var nameCell = currentRow.getElementsByTagName('td')[2]; // First Name column
+      var lastNameCell = currentRow.getElementsByTagName('td')[3]; // Last Name column
+      var departmentCell = currentRow.getElementsByTagName('td')[6]; // Department column
+      var dateCell = currentRow.getElementsByTagName('td')[7];  // Date column
+
+      if (idCell && nameCell && lastNameCell && departmentCell && dateCell) {
+        var idText = idCell.innerText.toLowerCase();
+        var nameText = nameCell.innerText.toLowerCase();
+        var lastNameText = lastNameCell.innerText.toLowerCase();
+        var departmentText = departmentCell.innerText.toLowerCase();
+        var dateText = dateCell.innerText;
+
+        var match = false;
+        if (type === 'id') {
+          match = idText.includes(searchTerm);
+        } else if (type === 'name') {
+          match = nameText.includes(searchTerm) || lastNameText.includes(searchTerm);
+        } else if (type === 'department') {
+          match = departmentText.includes(searchTerm);
+        } else if (type === 'date') {
+          match = dateText === searchTerm;
+        }
+
+        currentRow.style.display = match ? '' : 'none';
+
+        if (match) {
+          appointmentFound = true;
+        }
+      }
+    }
+
+    // Display a message if no appointment is found
+    noAppointmentMessage.innerText = appointmentFound ? '' : 'No appointment found with this ' + (type === 'id' ? 'ID' : (type === 'name' ? 'name' : (type === 'department' ? 'department' : 'date')));
+  }
+
+  // Call the function to populate the table on page load
+   window.onload = function () {
+                populateAppointmentTable();
+                displayCurrentPage();
+  };
+
+
+</script>
+
+</div>
+</div>
+</body>
+</html>

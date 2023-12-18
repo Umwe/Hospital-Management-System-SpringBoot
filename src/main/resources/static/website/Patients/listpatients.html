@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patients List</title>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            background-size: cover;
+        }
+
+        #sidebar {
+            width: 250px;
+            height: flex;
+            background-color: #87CEEB; /* Sky Blue */
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+
+        #main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        #menu a {
+            text-decoration: none;
+            color: #fff;
+            padding: 10px;
+            margin: 5px 0;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        #menu a:hover {
+            background-color: #4682B4; /* Steel Blue on hover */
+        }
+
+        #content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #logout-btn {
+            background: #1977cc;
+            color: #fff;
+            border-radius: 50px;
+            cursor: pointer;
+            padding: 20px;
+            width: 14%;
+            height: 80%;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            max-height: 5px;
+            font-size: 14px;
+            display: inline-block
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+
+        th, td {
+            padding: 10px; /* Reduced padding */
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4682B4;
+            color: #fff;
+        }
+
+        tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        #search-section {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align: left;
+            
+
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+        input[type="text"] {
+            padding: 8px;
+        }
+
+        button {
+            padding: 8px 15px;
+            cursor: pointer;
+            background-color: #87CEEB;
+            border: none;
+            color: #fff;
+        }
+
+        button:hover {
+            background-color: #4682B4;
+        }
+
+        #search-message {
+            color: red;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="sidebar">
+    <div id="menu">
+        <a href="http://localhost:8080/website/AdminHome.html#" onclick="showContent('patients')">Patients</a>
+        <a href="http://localhost:8080/website/AdminHome.html#" onclick="showContent('doctors')">Doctors</a>
+        <a href="http://localhost:8080/website/AdminHome.html#" onclick="showContent('appointments')">Appointments</a>
+        <a href="http://localhost:8080/website/AdminHome.html#" onclick="showContent('prescriptions')">Prescriptions</a>
+        <a href="http://localhost:8080/website/AdminHome.html#" onclick="showContent('department')">Department</a>
+    </div>
+    <button id="logout-btn" onclick="logout()">Log Out</button>
+</div>
+
+<div id="main-content">
+    <div id="content">
+        <h2>Patients List</h2>
+
+        <!-- Search section -->
+        <div id="search-section">
+            <label for="searchByName">Search by Name:</label>
+            <input type="text" id="searchByName" placeholder="Enter name">
+            <button onclick="searchPatients('name')">Search</button>
+
+            <label for="searchById">Search by ID:</label>
+            <input type="text" id="searchById" placeholder="Enter ID">
+            <button onclick="searchPatients('id')">Search</button>
+            <!-- Add this element inside the #content div -->
+            <div id="search-message"></div>
+        </div>
+
+        <!-- Table for displaying patient information -->
+        <table border="1">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Gender</th>
+                <th>DOB</th>
+                <th>Address</th>
+                <th>ID Number</th>
+                <th>Insurance</th>
+                <th>Blood-group</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="patient-table-body">
+            <!-- Patient data will be dynamically added here -->
+            </tbody>
+
+        </table>
+        <div id="pagination">
+            <button onclick="changePage('prev')">Previous</button>
+            <span id="page-number">Page 1</span>
+            <button onclick="changePage('next')">Next</button>
+        </div>
+    </div>
+</div>
+<script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+<script>
+
+
+ function logout() {
+        // Add logic for logout here
+        alert('Logging out...');
+        // Redirect to index.html or your login page
+        window.location.href = 'http://localhost:8080/website/index.html';
+    }
+
+    var currentPage = 1;
+var patientsPerPage = 10;
+
+function changePage(action) {
+    var totalPatients = document.getElementById('patient-table-body').getElementsByTagName('tr').length;
+    var maxPages = Math.ceil(totalPatients / patientsPerPage);
+
+    if (action === 'prev' && currentPage > 1) {
+        currentPage--;
+    } else if (action === 'next' && currentPage < maxPages) {
+        currentPage++;
+    }
+
+    updateTable();
+}
+
+function updateTable() {
+    var rows = document.getElementById('patient-table-body').getElementsByTagName('tr');
+
+    for (var i = 0; i < rows.length; i++) {
+        var currentRow = rows[i];
+        var startIndex = (currentPage - 1) * patientsPerPage;
+        var endIndex = startIndex + patientsPerPage - 1;
+
+        if (i >= startIndex && i <= endIndex) {
+            currentRow.style.display = '';
+        } else {
+            currentRow.style.display = 'none';
+        }
+    }
+
+    updatePageNumber();
+}
+
+function updatePageNumber() {
+    var maxPages = Math.ceil(document.getElementById('patient-table-body').getElementsByTagName('tr').length / patientsPerPage);
+    document.getElementById('page-number').innerText = 'Page ' + currentPage + ' of ' + maxPages;
+}
+
+function generateReport() {
+    var content = document.getElementById('main-content');
+
+    // Use html2pdf library to generate PDF
+    html2pdf(content, {
+        margin: 5,
+        filename: 'report.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    });
+}
+
+function populatePatientTable() {
+    var tableBody = document.getElementById('patient-table-body');
+
+    fetch('/patients/listPatients', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(patientsData => {
+        tableBody.innerHTML = '';
+
+        patientsData.forEach(function (patient) {
+            var row = tableBody.insertRow();
+            var properties = ['id', 'firstName', 'lastName', 'email', 'phoneNumber', 'gender', 'dob', 'address', 'idNumber', 'insurance', 'bloodgroup', 'status'];
+            properties.forEach(function (property) {
+                var cell = row.insertCell();
+                cell.appendChild(document.createTextNode(patient[property]));
+            });
+
+            var actionsCell = row.insertCell();
+            var updateButton = document.createElement('button');
+            updateButton.innerText = 'Update';
+            updateButton.style.backgroundColor = '#4CAF50';
+            updateButton.addEventListener('click', function () {
+                redirectToUpdatePage(patient);
+            });
+            actionsCell.appendChild(updateButton);
+
+            var deactivateButton = document.createElement('button');
+            deactivateButton.innerText = 'Deactivate';
+            deactivateButton.style.backgroundColor = '#FF0000';
+            deactivateButton.addEventListener('click', function () {
+                alert('Deactivate button clicked for patient ID: ' + patient.id);
+            });
+            actionsCell.appendChild(deactivateButton);
+        });
+
+        updateTable();
+    })
+    .catch(error => {
+        console.error('Error fetching patient data:', error);
+        alert('Error fetching patient data. Please try again.');
+    });
+}
+
+function redirectToUpdatePage(patient) {
+    var queryParams = '?id=' + encodeURIComponent(patient.id) +
+        '&firstName=' + encodeURIComponent(patient.firstName) +
+        '&lastName=' + encodeURIComponent(patient.lastName) +
+        '&email=' + encodeURIComponent(patient.email) +
+        '&phoneNumber=' + encodeURIComponent(patient.phoneNumber) +
+        '&gender=' + encodeURIComponent(patient.gender) +
+        '&dob=' + encodeURIComponent(patient.dob) +
+        '&address=' + encodeURIComponent(patient.address) +
+        '&idNumber=' + encodeURIComponent(patient.idNumber) +
+        '&insurance=' + encodeURIComponent(patient.insurance) +
+        '&bloodgroup=' + encodeURIComponent(patient.bloodgroup) +
+        '&status=' + encodeURIComponent(patient.status);
+
+    window.location.href = 'updatepatient.html' + queryParams;
+}
+
+function searchPatients(type) {
+    var searchTerm;
+    if (type === 'name') {
+        searchTerm = document.getElementById('searchByName').value.toLowerCase();
+    } else if (type === 'id') {
+        searchTerm = document.getElementById('searchById').value.toLowerCase();
+    }
+
+    var rows = document.getElementById('patient-table-body').getElementsByTagName('tr');
+    var noPatientMessage = document.getElementById('search-message');
+    var patientFound = false;
+
+    for (var i = 0; i < rows.length; i++) {
+        var currentRow = rows[i];
+        var firstNameCell = currentRow.getElementsByTagName('td')[1];
+        var lastNameCell = currentRow.getElementsByTagName('td')[2];
+        var idCell = currentRow.getElementsByTagName('td')[0];
+
+        if (firstNameCell && lastNameCell && idCell) {
+            var firstNameText = firstNameCell.innerText.toLowerCase();
+            var lastNameText = lastNameCell.innerText.toLowerCase();
+            var idText = idCell.innerText.toLowerCase();
+
+            var match = firstNameText.includes(searchTerm) || lastNameText.includes(searchTerm) || idText.includes(searchTerm);
+            currentRow.style.display = match ? '' : 'none';
+
+            if (match) {
+                patientFound = true;
+            }
+        }
+    }
+
+    noPatientMessage.innerText = patientFound ? '' : 'No patient found with this ' + (type === 'name' ? 'name' : 'ID');
+}
+
+window.onload = function () {
+    populatePatientTable();
+};
+
+</script>
+</body>
+</html>

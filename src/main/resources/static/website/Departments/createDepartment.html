@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Department</title>
+
+  <style>
+    body {
+      background-color: skyblue;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+       background: url('hero-bg.jpg') center center fixed;
+      align-items: center;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    form {
+      max-width: 400px;
+      width: 100%;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #06a0c3;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #message {
+      margin-top: 10px;
+      color: #333;
+    }
+  </style>
+
+</head>
+<button type="button" onclick="goBack()">Go Back</button>
+<body>
+<h2>Add Department</h2>
+
+<form id="departmentForm">
+  <label for="name">Department Name:</label>
+  <select id="name" name="name" required>
+    <option value="Cardiology">Cardiology</option>
+    <option value="Dermatology">Dermatology</option>
+    <option value="Endocrinology">Endocrinology</option>
+    <option value="Gastroenterology">Gastroenterology</option>
+    <option value="Hematology">Hematology</option>
+    <option value="Neurology">Neurology</option>
+    <option value="Orthopedics">Orthopedics</option>
+    <option value="Pediatrics">Pediatrics</option>
+    <option value="Psychiatry">Psychiatry</option>
+    <option value="Urology">Urology</option>
+  </select><br>
+
+  <label for="description">Description:</label>
+  <textarea id="description" name="description" required></textarea><br>
+
+  <button type="button" onclick="saveDepartment()">Save Department</button>
+  <p id="message"></p>
+</form>
+
+<script>
+
+
+        function goBack() {
+            // Redirect to index.html
+            window.location.href = 'http://localhost:8080/website/AdminHome.html#';
+          }
+
+
+        function saveDepartment() {
+            var name = document.getElementById("name").value;
+            var description = document.getElementById("description").value;
+
+            var department = {
+                "name": name,
+                "description": description
+            };
+
+            fetch('/departments/saveDepartment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(department),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                document.getElementById("message").innerHTML = "Department created successfully";
+                // You can redirect or perform other actions on success
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                document.getElementById("message").innerHTML = "Error creating department";
+                // Handle errors here
+            });
+        }
+    </script>
+</body>
+</html>

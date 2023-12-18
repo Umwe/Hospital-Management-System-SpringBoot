@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Patients</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('hero-bg.jpg'); /* Replace 'background.jpg' with your image file */
+            background-size: cover;
+            color: #000000; /* Text color */
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        #update-form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-image: url('hero-bg.jpg');
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #070000;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #87CEEB; /* Sky Blue */
+            color: #fff;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #4682B4; /* Steel Blue on hover */
+        }
+    </style>
+</head>
+<body>
+
+<h2>Patient Information</h2>
+
+<form id="update-form">
+
+    <label for="first-name">First Name:</label>
+    <input type="text" id="first-name" name="first-name" required>
+
+    <label for="last-name">Last Name:</label>
+    <input type="text" id="last-name" name="last-name" required>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="phone-number">Phone Number:</label>
+    <input type="tel" id="phone-number" name="phone-number" required>
+
+    <label for="gender">Gender:</label>
+    <select id="gender" name="gender" required>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+    </select>
+
+    <label for="date-of-birth">Date of Birth:</label>
+    <input type="date" id="date-of-birth" name="date-of-birth" required>
+
+    <label for="address">Address:</label>
+    <textarea id="address" name="address" required></textarea>
+
+    <label for="id-number">ID Number:</label>
+    <input type="text" id="id-number" name="id-number" required>
+
+    <label for="insurance">Insurance:</label>
+    <input type="text" id="insurance" name="insurance" required>
+
+    <label for="blood-group">Blood Group:</label>
+    <input type="text" id="blood-group" name="blood-group" required>
+
+
+    <label for="status">Status:</label>
+    <select id="status" name="status" required>
+    <option value="ACTIVE">ACTIVE</option>
+    <option value="DESACTIVE">DESACTIVE</option>
+    </select>
+
+
+    <input type="submit" value="Update">
+</form>
+
+<script>
+    // Function to get query parameter by name from URL
+    function getQueryParam(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    // Function to populate form fields with query parameters
+    function populateFormFields() {
+        document.getElementById('first-name').value = getQueryParam('firstName') || '';
+        document.getElementById('last-name').value = getQueryParam('lastName') || '';
+        document.getElementById('email').value = getQueryParam('email') || '';
+        document.getElementById('phone-number').value = getQueryParam('phoneNumber') || '';
+        document.getElementById('gender').value = getQueryParam('gender') || '';
+        document.getElementById('date-of-birth').value = getQueryParam('dob') || '';
+        document.getElementById('address').value = getQueryParam('address') || '';
+        document.getElementById('id-number').value = getQueryParam('idNumber') || '';
+        document.getElementById('insurance').value = getQueryParam('insurance') || '';
+        document.getElementById('blood-group').value = getQueryParam('bloodgroup') || '';
+        document.getElementById('status').value = getQueryParam('status') || '';
+    }
+
+    // Function to update patient data
+    function updatePatient() {
+        const patientId = getQueryParam('id');
+        const updateForm = document.getElementById('update-form');
+        const formData = new FormData(updateForm);
+
+        // Construct updated patient object
+        const updatedPatient = {
+            firstName: formData.get('first-name'),
+            lastName: formData.get('last-name'),
+            email: formData.get('email'),
+            phoneNumber: formData.get('phone-number'),
+            gender: formData.get('gender'),
+            dob: formData.get('date-of-birth'),
+            address: formData.get('address'),
+            idNumber: formData.get('id-number'),
+            insurance: formData.get('insurance'),
+            bloodgroup: formData.get('blood-group'),
+            status: formData.get('status')
+        };
+
+        // Make a PUT request to update the patient
+        fetch(`/patients/updatePatients/${patientId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedPatient),
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Patient updated successfully');
+            } else {
+                alert('Failed to update patient. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error updating patient:', error);
+            alert('Error updating patient. Please try again.');
+        });
+    }
+
+    // Call the function to populate form fields on page load
+    window.onload = function () {
+        populateFormFields();
+        const updateForm = document.getElementById('update-form');
+        updateForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            updatePatient();
+        });
+    };
+</script>
+
+</body>
+</html>

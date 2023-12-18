@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Error Page</title>
+    <style>
+        body {
+            background-color: #f0f8ff; /* Set a light blue background color for the entire page */
+        }
+
+        h1 {
+            color: #4682b4; /* Set a steel blue color for the heading */
+        }
+
+        p {
+            color: #333; /* Set a dark gray color for the text */
+        }
+
+        button {
+            background-color: #87ceeb; /* Set a sky blue color for the button */
+            color: #fff; /* Set white text color for the button */
+            padding: 10px 20px; /* Add some padding for a better look */
+            font-size: 16px; /* Increase the font size */
+            border: none; /* Remove the default button border */
+            cursor: pointer; /* Add a pointer cursor on hover */
+        }
+    </style>
+</head>
+<body>
+<h1>Error Page</h1>
+<p th:text="${errorMessage}"></p>
+
+<!-- Add a button to redirect to index.html -->
+<form action="http://localhost:8080/website/index.html" method="get">
+    <button type="submit">Go to Index</button>
+</form>
+</body>
+</html>

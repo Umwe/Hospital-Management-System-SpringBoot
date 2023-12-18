@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Management System - Patients</title>
+  <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            background: url('assets/img/hero-bg.jpg') center center fixed;
+            background-size: cover;
+        }
+
+        #sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #87CEEB; /* Sky Blue */
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+
+        #main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        #menu a {
+            text-decoration: none;
+            color: #fff;
+            padding: 10px;
+            margin: 5px 0;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        #menu a:hover {
+            background-color: #4682B4; /* Steel Blue on hover */
+        }
+
+        #content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .button-container {
+          
+            display: flex;
+            flex-wrap: wrap; /* Allow items to wrap to the next line */
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 100px;
+            
+        }
+
+        button {
+            padding: 60px;
+            margin:20px;
+            font-size: 16px;
+            width: 40%; 
+        }
+
+        #logout-btn {
+            /*align-self: flex-end;
+            margin-bottom: 20px;
+            padding: 10px;
+            margin-left: 25px;
+    
+    padding: 8px 25px;
+    white-space: nowrap;
+    transition: 0.3s;
+    
+            */
+            background: #1977cc;
+            color: #fff;
+            border-radius: 50px;
+            cursor: pointer;
+            padding: 20px;
+            width: 14%;
+            height: 80%;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            max-height: 5px;
+            font-size: 14px;
+            display: inline-block
+            
+        }
+    </style>
+</head>
+<body>
+<div id="sidebar">
+  <div id="menu">
+    <a href="#" onclick="showContent('patients')">Patients</a>
+    <a href="#" onclick="showContent('doctors')">Doctors</a>
+    <a href="#" onclick="showContent('appointments')">Appointments</a>
+    <a href="#" onclick="showContent('prescriptions')">Prescriptions</a>
+    <a href="#" onclick="showContent('department')">Department</a>
+
+  </div>
+  <button id="logout-btn" onclick="logout()">Log Out</button>
+</div>
+
+<div id="main-content">
+  <div id="content">
+    <!-- Content for Patients -->
+  
+    <div id="patients-content">
+      <h2>Patients</h2>
+      <button id="logout-btn" onclick="logout()">Log Out</button>
+      <div class="button-container">
+        
+        <button onclick="createPatient()">Create new Patient</button>
+        <button onclick="readPatients()">List All Patients</button>
+        <button onclick="updatePatient()">Update Patients Profile</button>
+        <button onclick="deletePatient()">Delete Patient Profile</button>
+      </div>
+    </div>
+
+    <!-- Content for Doctors -->
+    <div id="doctors-content" style="display: none;">
+      <h2>Doctors</h2>
+
+      <div class="button-container">
+        <button id="logout-btn" onclick="logout()">Log Out</button>
+        <button onclick="createDoctor()">Create new Doctor</button>
+        <button onclick="readDoctor()">List All Doctors</button>
+        <button onclick="listDoctorbydepartment()">List All Doctors</button>
+        <button onclick="updateDoctor()">Update Doctor Profile</button>
+        <button onclick="deleteDoctor()">Delete Doctor</button>
+      </div>
+      <!-- Add content for Doctors here -->
+    </div>
+
+    <!-- Content for Appointments -->
+    <div id="appointments-content" style="display: none;">
+      <h2>Appointments</h2>
+      <!-- Add content for Appointments here -->
+
+      <div class="button-container">
+        <button id="logout-btn" onclick="logout()">Log Out</button>
+        <button onclick="createappointment()">Schedule an appointment</button>
+        <button onclick="readappointment()">List All Appointments</button>
+        <button onclick="listappointmentbydate()">List Appointments by date</button>
+        <button onclick="listappointmentbydepartment()">List Appointments by Department</button>
+        <button onclick="listappointmentbydoctor()">List Appointments by Doctor</button>
+      </div>
+    </div>
+
+    <!-- Content for Prescriptions -->
+    <div id="prescriptions-content" style="display: none;">
+      <h2>Prescriptions</h2>
+      <!-- Add content for Prescriptions here -->
+
+      <div class="button-container">
+        <button id="logout-btn" onclick="logout()">Log Out</button>
+
+        <button onclick="readprescriptions()">List All Prescriptions</button>
+        <button onclick="listprescriptionsbydate()">List Prescriptions by date</button>
+        <button onclick="listprescriptionsbydepartment()">List Prescriptions by Department</button>
+        <button onclick="listprescriptionsbydoctor()">List Prescriptions by Doctor</button>
+        <button onclick="listprescriptionsbypatient()">List Prescriptions by Doctor</button>
+
+      </div>
+    </div>
+
+    <div id="department-content" style="display: none;">
+      <h2>Department</h2>
+      <!-- Add content for Prescriptions here -->
+
+      <div class="button-container">
+        <button id="logout-btn" onclick="logout()">Log Out</button>
+        <button onclick="createDepartment()">Create new Department</button>
+        <button onclick="readdepartment()">List All Departments</button>
+        <button onclick="updatedepartment()">Update Department details</button>
+        <button onclick="deletedepartment()">Delete Department</button>
+        
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+<script>
+        function showContent(contentType) {
+            // Hide all content divs
+            document.querySelectorAll('#content > div').forEach(div => {
+                div.style.display = 'none';
+            });
+
+            // Show the selected content
+            document.getElementById(`${contentType}-content`).style.display = 'flex';
+        }
+
+        function createPatient() {
+    // Show the modal
+    window.location.href = 'Patients/createPatient.html';
+}
+
+        function readPatients() {
+        // Show the modal
+        window.location.href = 'Patients/listpatients.html';
+        }
+
+        function updatePatient() {
+            // Add logic for updating a patient here
+            alert('Updating a patient...');
+        }
+
+        function deletePatient() {
+            // Add logic for deleting a patient here
+            alert('Deleting a patient...');
+        }
+
+
+        function createDepartment() {
+        // Redirect to the create department page
+        window.location.href = 'Departments/createDepartment.html';
+    }
+
+    function readdepartment() {
+        // Add logic for reading departments or redirect to the corresponding page
+        window.location.href = 'Departments/listDepartment.html';
+    }
+
+    function updateDepartment() {
+        // Add logic for updating a department here
+        alert('Updating a department...');
+    }
+
+    function deleteDepartment() {
+        // Add logic for deleting a department here
+        alert('Deleting a department...');
+    }
+
+    function createDoctor() {
+        // Add logic for deleting a department here
+        window.location.href = 'Doctors/createDoctor.html';
+    }
+
+    function readDoctor() {
+        // Add logic for deleting a department here
+        window.location.href = 'Doctors/listdoctor.html';
+    }
+
+   function createappointment() {
+        // Add logic for deleting a department here
+         window.open('http://localhost:8080/website/index.html#appointment', '_blank');
+    }
+
+     function readappointment() {
+        // Add logic for deleting a department here
+         window.location.href = 'Appointments/listappointmnts.html';
+    }
+
+      function readprescriptions() {
+        // Add logic for deleting a department here
+         window.location.href = 'Prescription/listPrescription.html';
+    }
+
+
+
+
+readprescriptions
+
+
+
+
+    function logout() {
+        // Add logic for logout here
+        alert('Logging out...');
+        // Redirect to index.html or your login page
+        window.location.href = 'index.html';
+    }
+</script>
+    </script>
+</body>
+</html>

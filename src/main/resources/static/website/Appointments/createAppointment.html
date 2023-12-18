@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Save New Appointment</title>
+</head>
+<body>
+
+<h1>Save New Appointment</h1>
+
+<!-- Form for creating a new appointment -->
+<form id="createAppointmentForm">
+  <label for="patientId">Patient ID:</label>
+  <input type="text" id="patientId" required><br>
+
+  <label for="firstName">First Name:</label>
+  <input type="text" id="firstName" required><br>
+
+  <label for="lastName">Last Name:</label>
+  <input type="text" id="lastName" required><br>
+
+  <label for="email">Patient Email:</label>
+  <input type="text" id="email" required><br>
+
+  <label for="phoneNumber">Phone Number:</label>
+  <input type="text" id="phoneNumber" required><br>
+
+  <label for="department">Department:</label>
+  <input type="text" id="department" required><br>
+
+  <label for="date">Appointment Date:</label>
+  <input type="text" id="date" required><br>
+
+  <label for="time">Appointment Time:</label>
+  <input type="text" id="time" required><br>
+
+  <label for="note">Note:</label>
+  <input type="text" id="note"><br>
+
+  <button type="button" onclick="saveNewAppointment()">Save Appointment</button>
+</form>
+
+<script>
+    // JavaScript code for saving a new appointment
+    function saveNewAppointment() {
+        // Get input values
+        const patientid = document.getElementById('patientId').value;
+        const firstname = document.getElementById('firstName').value;
+        const lastname = document.getElementById('lastName').value;
+        const email = document.getElementById('email').value;
+        const phoneNumber = document.getElementById('phoneNumber').value;
+        const department = document.getElementById('department').value;
+        const date = document.getElementById('date').value;
+        const time = document.getElementById('time').value;
+        const note = document.getElementById('note').value;
+
+        // Create a JSON object with the appointment data
+        const appointmentData = {
+            patientid: patientid,
+            firstname: firstname,
+            lastname: lastname,
+            email: email,
+            phoneNumber: phoneNumber,
+            department: department,
+            date: date,
+            time: time,
+            note: note
+        };
+
+        // Make a POST request to create a new appointment
+        fetch('/appointments/saveAppointment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(appointmentData),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Appointment created:', data);
+            alert('Appointment created successfully!');
+            // You can redirect the user or perform other actions as needed
+        })
+        .catch(error => {
+            console.error('Error creating appointment:', error);
+            alert('Error creating appointment. Please try again.');
+        });
+    }
+</script>
+
+</body>
+</html>

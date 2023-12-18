@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultation Form</title>
+
+    <style>
+        body {
+            background-image: url('hero-bg.jpg'); /* Replace with the actual path to your background image */
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h2 {
+            text-align: center;
+            color: #fff; /* White text color */
+        }
+
+        form {
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Box shadow for a slight border effect */
+            max-width: 400px;
+            width: 140%;
+            box-sizing: border-box;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333; /* Dark text color */
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+            border: 1px solid #ccc; /* Light gray border */
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            background-color: skyblue;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0080b3; /* Darker blue on hover */
+        }
+
+        #backButton {
+            background-color: skyblue;
+            color: #fff;
+            cursor: pointer;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+        }
+
+        #backButton:hover {
+            background-color: #0080b3; /* Darker blue on hover */
+        }
+    </style>
+</head>
+<body>
+
+<div id="message"></div>
+<form onsubmit="saveConsultation(); return false;">
+    <label for="doctor_id">Doctor ID:</label>
+    <input type="text" id="doctor_id" name="doctor_id" value="DOC16122023UMWE021" readonly required>
+
+    <label for="doctor_name">Doctor Name:</label>
+    <input type="text" id="doctor_name" name="doctor_name" value="Kwizera Africa" readonly required>
+
+    <label for="patient_id">Patient ID:</label>
+    <input type="text" id="patient_id" name="patient_id" required>
+
+    <label for="patient_name">Patient Name:</label>
+    <input type="text" id="patient_name" name="patient_name" required>
+
+    <label for="date">Date:</label>
+    <input type="date" id="date" name="date" required>
+
+    <label for="consultation_details">Consultation Details:</label>
+    <textarea id="consultation_details" name="consultation_details" rows="4" required></textarea>
+
+    <input type="submit" value="Submit">
+</form>
+
+<script>
+    function saveConsultation() {
+        var doctor_id = document.getElementById("doctor_id").value;
+        var doctor_name = document.getElementById("doctor_name").value;
+        var patient_id = document.getElementById("patient_id").value;
+        var patient_name = document.getElementById("patient_name").value;
+        var date = document.getElementById("date").value;
+        var consultation_details = document.getElementById("consultation_details").value;
+
+        var consultation = {
+            "doctor_id": doctor_id,
+            "doctor_name": doctor_name,
+            "patient_id": patient_id,
+            "patient_name": patient_name,
+            "date": date,
+            "consultation_details": consultation_details
+        };
+
+        fetch('/prescriptions/savePrescription', {  // Replace '/your-controller-endpoint' with the actual endpoint
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(consultation),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Success:', data);
+            document.getElementById("message").innerHTML = "Consultation created successfully";
+            // You can redirect or perform other actions on success
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            document.getElementById("message").innerHTML = "Error creating consultation";
+            // Handle errors here
+        });
+    }
+</script>
+
+
+<!-- Back Button -->
+<button id="backButton" onclick="window.location.href='http://localhost:8080/website/DoctorDir/DoctorHome.html'">Back</button>
+
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Management System - Patients</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      background-size: cover;
+    }
+
+    #sidebar {
+      width: 250px;
+      height: 100vh;
+      background-color: #87CEEB; /* Sky Blue */
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 20px;
+    }
+
+    #main-content {
+      flex: 1;
+      padding: 20px;
+    }
+
+    #menu a {
+      text-decoration: none;
+      color: #fff;
+      padding: 10px;
+      margin: 5px 0;
+      display: block;
+      transition: background-color 0.3s;
+    }
+
+    #menu a:hover {
+      background-color: #4682B4; /* Steel Blue on hover */
+    }
+
+    #content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #logout-btn {
+      background: #1977cc;
+      color: #fff;
+      border-radius: 50px;
+      cursor: pointer;
+      padding: 20px;
+      width: 14%;
+      height: 80%;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      max-height: 5px;
+      font-size: 14px;
+      display: inline-block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 2px solid #020000;
+      border-left: 2px solid #020000;
+      border-right: 2px solid #020000;
+      border-top: 2px solid #020000;
+    }
+
+    th {
+      background-color: #4682B4; /* Steel Blue for header */
+      color: #fff;
+    }
+
+    tbody tr:hover {
+      background-color: #f5f5f5; /* Light gray on hover */
+    }
+
+    #search-section {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    label {
+      margin-right: 10px;
+    }
+
+    input[type="text"] {
+      padding: 8px;
+    }
+
+    button {
+      padding: 8px 15px;
+      cursor: pointer;
+      background-color: #87CEEB; /* Sky Blue */
+      border: none;
+      color: #fff;
+    }
+
+    button:hover {
+      background-color: #4682B4; /* Steel Blue on hover */
+    }
+  </style>
+</head>
+<body>
+<div id="sidebar">
+  <div id="menu">
+    <a href="http://localhost:8080/website/AdminHome.html" onclick="showContent('patients')">Patients</a>
+    <a href="http://localhost:8080/website/AdminHome.html" onclick="showContent('doctors')">Doctors</a>
+    <a href="http://localhost:8080/website/AdminHome.html" onclick="showContent('appointments')">Appointments</a>
+    <a href="http://localhost:8080/website/AdminHome.html" onclick="showContent('prescriptions')">Prescriptions</a>
+    <a href="http://localhost:8080/website/AdminHome.html" onclick="showContent('department')">Department</a>
+  </div>
+  <button id="logout-btn" onclick="logout()">Log Out</button>
+</div>
+
+<div id="main-content">
+  <div id="content">
+    <div id="patients-content">
+      <br>
+      <br>
+      <br>
+      <h2> Department List</h2>
+
+      <div id="search-section">
+        <div>
+          <button onclick="generateReport()">Generate Report</button>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+        </div>
+        <label for="searchById">Search by ID:</label>
+        <input type="text" id="searchById" placeholder="Enter ID">
+        <button onclick="searchDepartments('id')">Search</button>
+
+        <label for="searchByName">Search by Name:</label>
+        <input type="text" id="searchByName" placeholder="Enter Name">
+        <button onclick="searchDepartments('name')">Search</button>
+      </div>
+
+      <div id="search-message" style="color: red;"></div>
+
+      <button id="logout-btn" onclick="logout()">Log Out</button>
+      <div class="button-container">
+        <table border="1" cellpadding="10">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody id="department-table-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Pagination buttons -->
+      <div>
+        <button onclick="prevPage()">Previous</button>
+        <span>Page: <strong id="currentPage"></strong></span>
+        <button onclick="nextPage()">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+<script>
+    var currentPage = 1;
+    var pageSize = 5; // Set your desired page size
+
+    function generateReport() {
+      var content = document.getElementById('main-content');
+      html2pdf(content, {
+        margin: 10,
+        filename: 'report.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      });
+    }
+
+    function populateDepartmentTable() {
+      var tableBody = document.getElementById('department-table-body');
+
+      fetch('/departments/listDepartments', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((response) => response.json())
+        .then((departmentsData) => {
+          tableBody.innerHTML = '';
+
+          var startIndex = (currentPage - 1) * pageSize;
+          var endIndex = startIndex + pageSize;
+
+          departmentsData.slice(startIndex, endIndex).forEach(function (department) {
+            var row = tableBody.insertRow();
+            var properties = ['id', 'name', 'description'];
+            properties.forEach(function (property) {
+              var cell = row.insertCell();
+              cell.appendChild(document.createTextNode(department[property]));
+            });
+
+            var actionsCell = row.insertCell();
+            var updateButton = document.createElement('button');
+            updateButton.innerText = 'Update';
+            updateButton.style.backgroundColor = '#4CAF50';
+            updateButton.addEventListener('click', function () {
+              alert('Update button clicked for department ID: ' + department.id);
+            });
+            actionsCell.appendChild(updateButton);
+
+            var deleteButton = document.createElement('button');
+            deleteButton.innerText = 'Delete';
+            deleteButton.style.backgroundColor = '#FF0000';
+
+            deleteButton.addEventListener('click', function () {
+              deleteDepartment(department.id);
+            });
+            actionsCell.appendChild(deleteButton);
+          });
+
+          // Display the current page
+          var totalPages = Math.ceil(departmentsData.length / pageSize);
+          document.getElementById('currentPage').innerText = currentPage + ' / ' + totalPages;
+        })
+        .catch((error) => {
+          console.error('Error fetching department data:', error);
+          alert('Error fetching department data. Please try again.');
+        });
+    }
+
+    function deleteDepartment(departmentId) {
+      var confirmDelete = confirm(`Are you sure you want to delete the department with ID: ${departmentId}?`);
+
+      if (confirmDelete) {
+        fetch(`/departments/deleteDepartment/${departmentId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+          .then((response) => {
+            if (response.status === 204) {
+              populateDepartmentTable();
+            } else {
+              alert('Error deleting department. Please try again.');
+            }
+          })
+          .catch((error) => {
+            console.error('Error deleting department:', error);
+            alert('Error deleting department. Please try again.');
+          });
+      }
+    }
+
+    function searchDepartments(type) {
+      var searchTerm;
+      if (type === 'name') {
+        searchTerm = document.getElementById('searchByName').value.toLowerCase();
+      } else if (type === 'id') {
+        searchTerm = document.getElementById('searchById').value.toLowerCase();
+      }
+
+      var rows = document.getElementById('department-table-body').getElementsByTagName('tr');
+      var noDepartmentMessage = document.getElementById('search-message');
+      var departmentFound = false;
+
+      for (var i = 0; i < rows.length; i++) {
+        var currentRow = rows[i];
+        var nameCell = currentRow.getElementsByTagName('td')[1];
+        var idCell = currentRow.getElementsByTagName('td')[0];
+
+        if (nameCell && idCell) {
+          var nameText = nameCell.innerText.toLowerCase();
+          var idText = idCell.innerText.toLowerCase();
+
+          var match = nameText.includes(searchTerm) || idText.includes(searchTerm);
+          currentRow.style.display = match ? '' : 'none';
+
+          if (match) {
+            departmentFound = true;
+          }
+        }
+      }
+
+      noDepartmentMessage.innerText = departmentFound ? '' : 'No department found with this ' + (type === 'name' ? 'name' : 'ID');
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      populateDepartmentTable();
+    }
+
+    function nextPage() {
+      if (currentPage < Math.ceil(departmentsData.length / pageSize)) {
+        currentPage++;
+        populateDepartmentTable();
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        populateDepartmentTable();
+      }
+    }
+
+    window.onload = function () {
+      populateDepartmentTable();
+    };
+  </script>
+</body>
+</html>
